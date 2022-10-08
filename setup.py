@@ -53,7 +53,11 @@ setup(
     url="https://github.com/ApeWorX/<REPO_NAME>",
     include_package_data=True,
     install_requires=[
-        "eth-ape",
+        "py-solc-x>=1.1.0,<2",
+        "eth-ape>=0.5.0,<0.6",
+        "ethpm-types",  # Use the version ape requires
+        "packaging",  # Use the version ape requires
+        "requests",
     ],
     python_requires=">=3.8,<4",
     extras_require=extras_require,

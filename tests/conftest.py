@@ -7,6 +7,8 @@ import ape
 import pytest
 from ape.utils import get_all_files_in_directory
 
+import ape_zksync  # noqa: F401
+
 # NOTE: Ensure that we don't use local paths for these
 ape.config.DATA_FOLDER = Path(mkdtemp()).resolve()
 ape.config.PROJECT_FOLDER = Path(mkdtemp()).resolve()

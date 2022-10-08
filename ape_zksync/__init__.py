@@ -1,11 +1,9 @@
 from ape import plugins
-from ape.api import NetworkAPI, create_network_type
-from ape.api.networks import LOCAL_NETWORK_NAME
+from ape.api import create_network_type
 from ape_geth import GethProvider
-from ape_test import LocalProvider
 
-from ape_zksync.ecosystem import NETWORKS, ZkSync, ZkSyncConfig
 from ape_zksync.compiler import ZkSyncCompiler
+from ape_zksync.ecosystem import NETWORKS, ZkSync, ZkSyncConfig
 
 
 @plugins.register(plugins.Config)

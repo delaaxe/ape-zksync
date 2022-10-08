@@ -1,11 +1,11 @@
-import os
 import json
+import os
+import platform
 import subprocess
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Union, cast, TypedDict, Literal
+from typing import Dict, List, Literal, Optional, Set, TypedDict, Union, cast
 
 import solcx  # type: ignore
-from solcx.install import get_executable  # type: ignore
 from ape.api import CompilerAPI
 from ape.exceptions import CompilerError
 from ape.logging import logger
@@ -16,18 +16,23 @@ from packaging.version import InvalidVersion
 from packaging.version import Version as _Version
 from requests.exceptions import ConnectionError  # type: ignore
 from semantic_version import NpmSpec, Version  # type: ignore
+from solcx.install import get_executable  # type: ignore
 
-from ape_zksync.exceptions import IncorrectMappingFormatError
-from ape_zksync.ecosystem import ZkSyncConfig
 from ape_zksync._utils import (
     get_import_lines,
     get_pragma_spec,
     get_version_with_commit_hash,
     verify_contract_filepaths,
 )
+from ape_zksync.ecosystem import ZkSyncConfig
+from ape_zksync.exceptions import IncorrectMappingFormatError
 
+print("platform is", platform.platform(), platform.processor())
 
-zksolc_path = "/Users/axel/Library/Caches/hardhat-nodejs/compilers/zksolc/zksolc-v1.1.5"
+# TODO: download this automatically instead of having it in the repo
+processor = "arm" if platform.processor() == "arm" else "amd"
+zksolc_executable = f"zksolc-macosx-{processor}64-v1.1.5"
+zksolc_path = str((Path(__file__).parent.parent / "bin" / zksolc_executable).absolute())
 
 
 class CompilerInput(TypedDict):

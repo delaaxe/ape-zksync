@@ -1,11 +1,7 @@
 from typing import List, Optional
-from ape.api import TransactionAPI
+
 from ape.api.config import PluginConfig
-from ape.types import TransactionSignature
 from ape_ethereum.ecosystem import Ethereum, NetworkConfig
-from ape_ethereum.transactions import StaticFeeTransaction, TransactionType
-from eth_typing import HexStr
-from eth_utils import add_0x_prefix, decode_hex
 
 NETWORKS = {
     # chain_id, network_id
