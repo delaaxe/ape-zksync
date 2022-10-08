@@ -1,0 +1,86 @@
+from typing import List, Optional
+from ape.api import TransactionAPI
+from ape.api.config import PluginConfig
+from ape.types import TransactionSignature
+from ape_ethereum.ecosystem import Ethereum, NetworkConfig
+from ape_ethereum.transactions import StaticFeeTransaction, TransactionType
+from eth_typing import HexStr
+from eth_utils import add_0x_prefix, decode_hex
+
+NETWORKS = {
+    # chain_id, network_id
+    "goerli": (280, 280),
+}
+
+
+class ZkSyncConfig(PluginConfig):
+    goerli: NetworkConfig = NetworkConfig(required_confirmations=1, block_time=1)  # type: ignore
+    default_network: str = "goerli"
+
+    # Configure re-mappings using a `=` separated-str,
+    # e.g. '@import_name=path/to/dependency'
+    import_remapping: List[str] = []
+    optimize: bool = True
+    version: Optional[str] = None
+
+
+class ZkSync(Ethereum):
+    @property
+    def config(self) -> ZkSyncConfig:  # type: ignore
+        return self.config_manager.get_config("zksync")  # type: ignore
+
+    # def create_transaction(self, **kwargs) -> TransactionAPI:
+    #     """
+    #     Returns a transaction using the given constructor kwargs.
+    #     Returns:
+    #         :class:`~ape.api.transactions.TransactionAPI`
+    #     """
+
+    #     transaction_types = {
+    #         TransactionType.STATIC: StaticFeeTransaction,
+    #     }
+
+    #     if "type" in kwargs:
+    #         type_kwarg = kwargs["type"]
+    #         if type_kwarg is None:
+    #             type_kwarg = TransactionType.STATIC.value
+    #         elif isinstance(type_kwarg, int):
+    #             type_kwarg = f"0{type_kwarg}"
+    #         elif isinstance(type_kwarg, bytes):
+    #             type_kwarg = type_kwarg.hex()
+
+    #         suffix = type_kwarg.replace("0x", "")
+    #         if len(suffix) == 1:
+    #             type_kwarg = f"{type_kwarg.rstrip(suffix)}0{suffix}"
+
+    #         version_str = add_0x_prefix(HexStr(type_kwarg))
+    #         version = TransactionType(version_str)
+    #     else:
+    #         version = TransactionType.STATIC
+
+    #     txn_class = transaction_types[version]
+    #     kwargs["type"] = version.value
+
+    #     if "required_confirmations" not in kwargs or kwargs["required_confirmations"] is None:
+    #         # Attempt to use default required-confirmations from `ape-config.yaml`.
+    #         required_confirmations = 0
+    #         active_provider = self.network_manager.active_provider
+    #         if active_provider:
+    #             required_confirmations = active_provider.network.required_confirmations
+
+    #         kwargs["required_confirmations"] = required_confirmations
+
+    #     if isinstance(kwargs.get("chainId"), str):
+    #         kwargs["chainId"] = int(kwargs["chainId"], 16)
+
+    #     if "input" in kwargs:
+    #         kwargs["data"] = decode_hex(kwargs.pop("input"))
+
+    #     if all(field in kwargs for field in ("v", "r", "s")):
+    #         kwargs["signature"] = TransactionSignature(  # type: ignore
+    #             v=kwargs["v"],
+    #             r=bytes(kwargs["r"]),
+    #             s=bytes(kwargs["s"]),
+    #         )
+
+    #     return txn_class(**kwargs)  # type: ignore
