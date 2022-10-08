@@ -5,7 +5,9 @@ from tempfile import mkdtemp
 
 import ape
 import pytest
+from ape._cli import cli as ape_cli
 from ape.utils import get_all_files_in_directory
+from click.testing import CliRunner
 
 import ape_zksync  # noqa: F401
 
@@ -62,3 +64,29 @@ def contract(request, project):
 @pytest.fixture
 def compiler():
     return ape.compilers.registered_compilers[".sol"]
+
+
+@pytest.fixture
+def networks():
+    return ape.networks
+
+
+@pytest.fixture
+def accounts():
+    return ape.accounts
+
+
+@pytest.fixture
+def provider_context():
+    settings = {"uri": "https://zksync2-testnet.zksync.dev"}
+    return ape.networks.zksync.goerli.use_provider("geth", settings)
+
+
+@pytest.fixture
+def runner():
+    return CliRunner()
+
+
+@pytest.fixture
+def cli():
+    return ape_cli

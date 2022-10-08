@@ -27,8 +27,6 @@ from ape_zksync._utils import (
 from ape_zksync.ecosystem import ZkSyncConfig
 from ape_zksync.exceptions import IncorrectMappingFormatError
 
-print("platform is", platform.platform(), platform.processor())
-
 # TODO: download this automatically instead of having it in the repo
 processor = "arm" if platform.processor() == "arm" else "amd"
 zksolc_executable = f"zksolc-macosx-{processor}64-v1.1.5"
