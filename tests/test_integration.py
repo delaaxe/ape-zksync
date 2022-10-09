@@ -1,30 +1,15 @@
-EXPECTED_OUTPUT = """
-zksync
-└── goerli  (default)
-    └── geth  (default)
-""".strip()
+import ape
+import pytest
 
 
-def assert_rich_text(actual: str, expected: str):
-    """
-    The output from `rich` causes a bunch of extra spaces to
-    appear at the end of each line. For easier testing, we remove those here.
-    """
-    actual = f"zksync{actual.split('zksync')[-1]}"
-    if "ethereum" in actual:
-        actual = actual.split("ethereum")[0]
-
-    expected = expected.strip()
-    lines = actual.split("\n")
-    new_lines = []
-    for line in lines:
-        if line:
-            new_lines.append(line.rstrip())
-
-    actual = "\n".join(new_lines)
-    assert actual == expected
-
-
-def test_networks(runner, cli):
-    result = runner.invoke(cli, ["networks", "list"])
-    assert_rich_text(result.output, EXPECTED_OUTPUT)
+@pytest.mark.skip(reason="integration test on goerli so needs to spend gas there")
+def test_integration(project, provider_context, compiler):
+    account = ape.accounts.load("goerli")
+    print("account is", account)
+    compiler.compile([project.contracts_folder / "TestDapp.sol"])
+    with provider_context:
+        contract = project.TestDapp.at("0x75169c03608F284dD78E6a0cfc71f4bA06BC5DE2")
+        print("value before", contract.userNumbers(account.address))
+        result = contract.setNumber(69, sender=account, type=0)
+        print("tx result", result)
+        print("value after", contract.userNumbers(account.address))
