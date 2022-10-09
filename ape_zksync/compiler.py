@@ -18,14 +18,14 @@ from requests.exceptions import ConnectionError  # type: ignore
 from semantic_version import NpmSpec, Version  # type: ignore
 from solcx.install import get_executable  # type: ignore
 
-from ape_zksync._utils import (
+from ape_zksync._utils import (  # FIXME: this should be imported from ape_solidity instead
     get_import_lines,
     get_pragma_spec,
     get_version_with_commit_hash,
     verify_contract_filepaths,
 )
 from ape_zksync.ecosystem import ZkSyncConfig
-from ape_zksync.exceptions import IncorrectMappingFormatError
+from ape_zksync.exceptions import IncorrectMappingFormatError  # FIXME: imported from ape_solidity
 
 # TODO: download this automatically instead of having it in the repo
 processor = "arm" if platform.processor() == "arm" else "amd"
@@ -56,6 +56,10 @@ class CompilerOutput(TypedDict):
     errors: List
 
 
+# NOTE: had to copy paste code from ape_solidity because I had issues having both plugins co-exist,
+# but ideally this should inherit or reuse SolidityCompiler.
+# TODO: port more functionality like compiler downloading and Docker support from:
+# https://github.com/matter-labs/hardhat-zksync/tree/main/packages/hardhat-zksync-solc/src/compile
 class ZkSyncCompiler(CompilerAPI):
     _import_remapping_hash: Optional[int] = None
     _cached_project_path: Optional[Path] = None
@@ -297,8 +301,8 @@ class ZkSyncCompiler(CompilerAPI):
             compiler_input = self.get_compiler_input(base_path, files)
             stdin = json.dumps(compiler_input, indent=2)
 
-            zksolc_executable = get_executable(solc_version.truncate())
-            command = [zksolc_path, "--standard-json", "--solc", zksolc_executable]
+            solc_executable = get_executable(solc_version.truncate())
+            command = [zksolc_path, "--standard-json", "--solc", solc_executable]
             completed = subprocess.run(command, input=stdin, capture_output=True, text=True)
             assert completed.returncode == 0, f"zksolc failed to compile: {completed.stderr}"
             output: CompilerOutput = json.loads(completed.stdout)

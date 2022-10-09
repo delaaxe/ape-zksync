@@ -11,6 +11,10 @@ def rlp_encode_hex(fields: List) -> str:
 
 
 def serialize_eip712_transaction(transaction: dict) -> str:
+    # Ported from: https://www.npmjs.com/package/zksync-web3
+    # Source code not on GitHub, but can be seen once installed in:
+    # node_modules/zksync-web3/src/utils.ts, function serialize()
+
     assert transaction["type"] in [113, "0x71"], "not eip712"
 
     max_fee_per_erg = transaction["gasPrice"]

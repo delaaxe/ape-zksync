@@ -34,60 +34,11 @@ class ZkSync(Ethereum):
         Returns:
             :class:`~ape.api.transactions.TransactionAPI`
         """
-        print("XXXXXXXXXXXXXXXXX", kwargs)
+        # TODO: zkSync transactions currently work only with type=0 (non EIP-1559),
+        #       so I assume it should be handled here
         return super().create_transaction(**kwargs)
 
-    #     transaction_types = {
-    #         TransactionType.STATIC: StaticFeeTransaction,
-    #     }
-
-    #     if "type" in kwargs:
-    #         type_kwarg = kwargs["type"]
-    #         if type_kwarg is None:
-    #             type_kwarg = TransactionType.STATIC.value
-    #         elif isinstance(type_kwarg, int):
-    #             type_kwarg = f"0{type_kwarg}"
-    #         elif isinstance(type_kwarg, bytes):
-    #             type_kwarg = type_kwarg.hex()
-
-    #         suffix = type_kwarg.replace("0x", "")
-    #         if len(suffix) == 1:
-    #             type_kwarg = f"{type_kwarg.rstrip(suffix)}0{suffix}"
-
-    #         version_str = add_0x_prefix(HexStr(type_kwarg))
-    #         version = TransactionType(version_str)
-    #     else:
-    #         version = TransactionType.STATIC
-
-    #     txn_class = transaction_types[version]
-    #     kwargs["type"] = version.value
-
-    #     if "required_confirmations" not in kwargs or kwargs["required_confirmations"] is None:
-    #         # Attempt to use default required-confirmations from `ape-config.yaml`.
-    #         required_confirmations = 0
-    #         active_provider = self.network_manager.active_provider
-    #         if active_provider:
-    #             required_confirmations = active_provider.network.required_confirmations
-
-    #         kwargs["required_confirmations"] = required_confirmations
-
-    #     if isinstance(kwargs.get("chainId"), str):
-    #         kwargs["chainId"] = int(kwargs["chainId"], 16)
-
-    #     if "input" in kwargs:
-    #         kwargs["data"] = decode_hex(kwargs.pop("input"))
-
-    #     if all(field in kwargs for field in ("v", "r", "s")):
-    #         kwargs["signature"] = TransactionSignature(  # type: ignore
-    #             v=kwargs["v"],
-    #             r=bytes(kwargs["r"]),
-    #             s=bytes(kwargs["s"]),
-    #         )
-
-    #     return txn_class(**kwargs)  # type: ignore
-
     def decode_receipt(self, data: dict) -> ReceiptAPI:
-        print("DDDDDDDDDDDDDDDDD")
         status = data.get("status")
         if status:
             if isinstance(status, str) and status.isnumeric():
@@ -96,7 +47,7 @@ class ZkSync(Ethereum):
             status = TransactionStatusEnum(status)
         elif status is None:
             print("WARNING: status is None and set to 0")
-            status = 1
+            status = 1  # HACK: it seems status can be None on zkSync so using this hack
 
         txn_hash = data.get("hash")
 
@@ -110,9 +61,11 @@ class ZkSync(Ethereum):
             data["input"] = bytes(HexBytes(data.get("input", b"")))
 
         receipt = Receipt(  # type: ignore
-            block_number=data.get("block_number") or data.get("blockNumber") or 999,  # changed here
+            block_number=data.get("block_number")
+            or data.get("blockNumber")
+            or 999,  # HACK: can be None
             contract_address=data.get("contractAddress"),
-            gas_limit=data.get("gas") or data.get("gasLimit") or 999,  # changed here
+            gas_limit=data.get("gas") or data.get("gasLimit") or 999,  # HACK: can be None
             gas_price=data.get("gas_price") or data.get("gasPrice"),
             gas_used=data.get("gas_used") or data.get("gasUsed"),
             logs=data.get("logs", []),
@@ -139,7 +92,7 @@ class ZkSync(Ethereum):
         if "transactions" in data:
             data["num_transactions"] = len(data["transactions"])
         if data.get("totalDifficulty") is None:
-            data["totalDifficulty"] = 999  # changed here
+            data["totalDifficulty"] = 999  # HACK
         if data.get("size") is None:
-            data["size"] = 999  # changed here
+            data["size"] = 999  # HACK
         return Block.parse_obj(data)
